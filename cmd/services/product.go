@@ -84,17 +84,17 @@ func (p *ProductService) GetProduct(ctx context.Context, id *productpb.Id) (*pro
 	var product productpb.Product
 	var category productpb.Category
 
-	err := row.Scan(
+	if err := row.Scan(
 		&product.Id,
 		&product.Name,
 		&product.Price,
 		&product.Stock,
 		&category.Id,
 		&category.Name,
-	)
-	if err != nil {
-		logger.Printf("Failed to Query Row Data %v", err.Error())
+	); err != nil {
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
+
 	product.Category = &category
 
 	return &product, nil
@@ -180,4 +180,14 @@ func (p *ProductService) UpdateProduct(ctx context.Context, productData *product
 	}
 
 	return &Response, nil
+}
+
+func (p *ProductService) DeleteProduct(ctx context.Context, id *productpb.Id) (*productpb.Status, error) {
+	var response productpb.Status
+
+	if err := p.DB.Table(`products`).Where(`id = ?`, id.GetId()).Delete(nil).Error; err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	response.Status = 1
+	return &response, nil
 }
