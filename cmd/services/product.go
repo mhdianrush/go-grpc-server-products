@@ -19,8 +19,11 @@ type ProductService struct {
 
 var logger = logrus.New()
 
-func (p *ProductService) GetProducts(context.Context, *productpb.Empty) (*productpb.Products, error) {
+func (p *ProductService) GetProducts(ctx context.Context, pageParam *productpb.Page) (*productpb.Products, error) {
 	var page int64 = 1
+	if pageParam.GetPage() != 0 {
+		page = pageParam.GetPage()
+	}
 
 	var pagination paginationpb.Pagination
 	var products []*productpb.Product
