@@ -13,7 +13,6 @@ func ConnectDB() *gorm.DB {
 	if err != nil {
 		logger.Println("Failed to Connect Database")
 	}
-	db.AutoMigrate()
 
 	logger.Println("Database Connected")
 
