@@ -2,7 +2,8 @@ package services
 
 import (
 	"context"
-	"go-gRPC-server-products/pb/pagination"
+	"go-gRPC-server-products/cmd/helpers"
+	paginationpb "go-gRPC-server-products/pb/pagination"
 	productpb "go-gRPC-server-products/pb/product"
 
 	"github.com/sirupsen/logrus"
@@ -19,15 +20,23 @@ type ProductService struct {
 var logger = logrus.New()
 
 func (p *ProductService) GetProducts(context.Context, *productpb.Empty) (*productpb.Products, error) {
+	var page int64 = 1
+
+	var pagination paginationpb.Pagination
 	var products []*productpb.Product
 
-	rows, err := p.DB.Table(
+	sql := p.DB.Table(
 		`products as p`,
 	).Joins(
 		`left join categories as c on c.id = p.category_id`,
 	).Select(
 		`p.id`, `p.name`, `p.price`, `p.stock`, `c.id as category_id`, `c.name as category_name`,
-	).Rows()
+	)
+
+	offset, limit := helpers.Pagination(sql, page, &pagination)
+
+	rows, err := sql.Offset(int(offset)).Limit(int(limit)).Rows()
+
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -52,12 +61,7 @@ func (p *ProductService) GetProducts(context.Context, *productpb.Empty) (*produc
 		products = append(products, &product)
 	}
 	response := &productpb.Products{
-		Pagination: &pagination.Pagination{
-			Total:       2,
-			PerPage:     1,
-			CurrentPage: 1,
-			LastPage:    1,
-		},
+		Pagination: &pagination,
 		// random input pagination temporary
 		Data: products,
 	}
