@@ -9,7 +9,7 @@ import (
 
 func Pagination(sql *gorm.DB, page int64, pagination *paginationpb.Pagination) (int64, int64) {
 	var total int64
-	var limit int64 = 2
+	var limit int64 = 1
 	var offset int64
 
 	sql.Count(&total)
