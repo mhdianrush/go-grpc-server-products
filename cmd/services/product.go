@@ -58,7 +58,7 @@ func (p *ProductService) GetProducts(ctx context.Context, pageParam *productpb.P
 			&category.Name,
 		)
 		if err != nil {
-			logger.Printf("Failed to Query Row Data %v", err.Error())
+			logger.Printf("Failed to Query Rows Data %v", err.Error())
 		}
 		product.Category = &category
 		products = append(products, &product)
@@ -69,4 +69,33 @@ func (p *ProductService) GetProducts(ctx context.Context, pageParam *productpb.P
 		Data: products,
 	}
 	return response, nil
+}
+
+func (p *ProductService) GetProduct(ctx context.Context, id *productpb.Id) (*productpb.Product, error) {
+	row := p.DB.Table(
+		`products as p`,
+	).Joins(
+		`left join categories as c on c.id = p.category_id`,
+	).Select(
+		`p.id`, `p.name`, `p.price`, `p.stock`, `c.id as category_id`, `c.name as category_name`,
+	).Where(
+		`p.id = ?`, id.GetId(),
+	).Row()
+	var product productpb.Product
+	var category productpb.Category
+
+	err := row.Scan(
+		&product.Id,
+		&product.Name,
+		&product.Price,
+		&product.Stock,
+		&category.Id,
+		&category.Name,
+	)
+	if err != nil {
+		logger.Printf("Failed to Query Row Data %v", err.Error())
+	}
+	product.Category = &category
+
+	return &product, nil
 }
