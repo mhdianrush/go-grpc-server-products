@@ -1,6 +1,8 @@
 package main
 
 import (
+	"go-gRPC-server-products/cmd/services"
+	productpb "go-gRPC-server-products/pb/product"
 	"net"
 	"os"
 
@@ -25,6 +27,10 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
+	
+	productService := services.ProductService{}
+	productpb.RegisterProductServiceServer(grpcServer, &productService)
+
 	err = grpcServer.Serve(listener)
 	if err != nil {
 		logger.Println(err.Error())
