@@ -6,7 +6,7 @@ import "pagination.proto";
 option go_package = "go-gRPC-server-products/pb/product";
 
 service ProductService {
-  rpc GetProducts(Empty) returns (Products);
+  rpc GetProducts(Page) returns (Products);
   rpc GetProduct(Id) returns (Product);
   rpc CreateProduct(Product) returns(Id);
   rpc UpdateProduct(Product) returns(Status); 
@@ -14,6 +14,10 @@ service ProductService {
 }
 
 message Empty {};
+
+message Page {
+  optional int64 page = 1;
+}
 
 message Id {
   uint64 id = 1;
