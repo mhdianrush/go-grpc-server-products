@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-gRPC-server-products/cmd/config"
 	"go-gRPC-server-products/cmd/services"
 	productpb "go-gRPC-server-products/pb/product"
 	"net"
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	db := config.ConnectDB()
+
 	logger := logrus.New()
 
 	file, err := os.OpenFile("application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
@@ -27,8 +30,8 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	
-	productService := services.ProductService{}
+
+	productService := services.ProductService{DB: db}
 	productpb.RegisterProductServiceServer(grpcServer, &productService)
 
 	err = grpcServer.Serve(listener)
