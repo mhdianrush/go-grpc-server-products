@@ -4,10 +4,13 @@ import (
 	"context"
 	paginationpb "go-gRPC-server-products/pb/pagination"
 	productpb "go-gRPC-server-products/pb/product"
+
+	"gorm.io/gorm"
 )
 
 type ProductService struct {
 	productpb.UnimplementedProductServiceServer
+	DB *gorm.DB
 }
 
 func (p *ProductService) GetProducts(context.Context, *productpb.Empty) (*productpb.Products, error) {
